@@ -115,6 +115,8 @@
   }
   .btn:hover { transform: translateY(-2px); }
   .btn.btn-red { background: linear-gradient(135deg, var(--red), var(--red-deep)); box-shadow: 0 8px 18px rgba(232,40,60,0.32); }
+  .btn.btn-outline { background: #fff; color: var(--navy); border: 2px solid var(--border); box-shadow: none; }
+  .btn.btn-outline:hover { border-color: var(--navy); }
   .error-msg { color: var(--red-deep); font-size: 0.85rem; font-weight: 700; margin-top: 12px; min-height: 18px; }
   .switch-link { margin-top: 20px; font-size: 0.8rem; color: var(--muted); font-weight: 500; }
   .switch-link button {
@@ -342,6 +344,33 @@
     </div>
 
     <div class="card" style="margin-bottom:22px;">
+      <div class="admin-title">GitHub qoşulması (bir dəfəlik)</div>
+      <p class="hint" style="margin-bottom:14px;">Bunu bir dəfə qurun ki, əlavə etdiyiniz şagirdlər <b>hər kəsə</b> görünsün, təkcə sizin brauzerinizə yox. Token yalnız bu brauzerdə saxlanılır, heç yerə göndərilmir.</p>
+      <form id="ghConfigForm">
+        <div class="admin-grid">
+          <div class="field">
+            <label class="field-label" for="ghOwner">GitHub istifadəçi adı</label>
+            <input type="text" id="ghOwner" placeholder="məs: gachays" required>
+          </div>
+          <div class="field">
+            <label class="field-label" for="ghRepo">Repo adı</label>
+            <input type="text" id="ghRepo" placeholder="məs: td-school-certificates" required>
+          </div>
+          <div class="field">
+            <label class="field-label" for="ghBranch">Branch</label>
+            <input type="text" id="ghBranch" placeholder="main" value="main">
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="ghToken">GitHub Token (yalnız ilk dəfə lazımdır)</label>
+          <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
+        </div>
+        <button class="btn btn-outline" type="submit">Yadda saxla</button>
+        <div class="save-status" id="ghStatus"></div>
+      </form>
+    </div>
+
+    <div class="card" style="margin-bottom:22px;">
       <div class="admin-title">Yeni şagird əlavə et</div>
       <form id="addStudentForm">
         <div class="admin-grid">
@@ -370,6 +399,11 @@
           <div class="file-drop" id="fileDropLabel">PDF faylını seçmək üçün klikləyin</div>
           <input type="file" id="newPdf" accept="application/pdf" class="hidden">
         </div>
+        <div class="field">
+          <label class="field-label">Sertifikat şəkli (JPG/PNG) — Önizləmə üçün</label>
+          <div class="file-drop" id="imgDropLabel">Şəkil faylını seçmək üçün klikləyin</div>
+          <input type="file" id="newImg" accept="image/*" class="hidden">
+        </div>
         <button class="btn" type="submit">Siyahıya əlavə et</button>
         <div class="save-status" id="saveStatus"></div>
       </form>
@@ -388,9 +422,33 @@
 const STATIC_STUDENTS = [{"id": "malak_abdulla", "name": "Mələk Abdulla", "level": "Pre A1 Starters", "teacher": "Firuzə müəllimə", "file": "melek_abdulla.pdf", "img": "melek_abdulla.jpg"}, {"id": "ammar_abdulla", "name": "Ammar Abdulla", "level": "Pre A1 Starters", "teacher": "Firuzə müəllimə", "file": "ammar_abdulla.pdf", "img": "ammar_abdulla.jpg"}, {"id": "cavidan_heydarli", "name": "Cavidan Heydərli", "level": "A1 Movers", "teacher": "Leyla müəllimə", "file": "cavidan_heyderli.pdf", "img": "cavidan_heyderli.jpg"}, {"id": "daniz_cafarli", "name": "Dəniz Cəfərli", "level": "Pre A1 Starters", "teacher": "Leyla müəllimə", "file": "deniz_ceferli.pdf", "img": "deniz_ceferli.jpg"}, {"id": "hikmat_cafarli", "name": "Hikmət Cəfərli", "level": "Pre A1 Starters", "teacher": "Leyla müəllimə", "file": "hikmet_ceferli.pdf", "img": "hikmet_ceferli.jpg"}, {"id": "elvira_dadasova", "name": "Elvira Dadaşova", "level": "Pre A1 Starters", "teacher": "Leyla müəllimə", "file": "elvira_dadasova.pdf", "img": "elvira_dadasova.jpg"}, {"id": "adam_sirali", "name": "Adəm Şirəli", "level": "A1 Movers", "teacher": "Leyla müəllimə", "file": "adem_sireli.pdf", "img": "adem_sireli.jpg"}, {"id": "elnara_eyvazova", "name": "Elnarə Eyvazova", "level": "Pre A1 Starters", "teacher": "Leyla müəllimə", "file": "elnare_eyvazova.pdf", "img": "elnare_eyvazova.jpg"}, {"id": "nigar_suleymanli", "name": "Nigar Süleymanlı", "level": "A1 Movers", "teacher": "Zərifə müəllimə", "file": "nigar_suleymanli.pdf", "img": "nigar_suleymanli.jpg"}, {"id": "naz_imanzada", "name": "Naz İmanzadə", "level": "A1 Movers", "teacher": "Zərifə müəllimə", "file": "naz_imanzade.pdf", "img": "naz_imanzade.jpg"}, {"id": "ugur_nagi", "name": "Uğur Nağı", "level": "A1 Movers", "teacher": "Zərifə müəllimə", "file": "ugur_nagi.pdf", "img": "ugur_nagi.jpg"}, {"id": "aysu_samadova", "name": "Aysu Səmədova", "level": "Pre A1 Starters", "teacher": "Zərifə müəllimə", "file": "aysu_semedova.pdf", "img": "aysu_semedova.jpg"}, {"id": "banu_karimli", "name": "Banu Kərimli", "level": "A1 Movers", "teacher": "Zərifə müəllimə", "file": "banu_kerimli.pdf", "img": "banu_kerimli.jpg"}, {"id": "capay_musayev", "name": "Çapay Musayev", "level": "Pre A1 Starters", "teacher": "Zərifə müəllimə", "file": "capay_musayev.pdf", "img": "capay_musayev.jpg"}, {"id": "calal_ismayilov", "name": "Cəlal İsmayılov", "level": "Pre A1 Starters", "teacher": "Yasəmən müəllimə", "file": "celal_ismayilov.pdf", "img": "celal_ismayilov.jpg"}, {"id": "nihat_asgarzada", "name": "Nihat Əsgərzadə", "level": "Pre A1 Starters", "teacher": "Yasəmən müəllimə", "file": "nihat_esgerzade.pdf", "img": "nihat_esgerzade.jpg"}, {"id": "riad_ibrahimli", "name": "Riad İbrahimli", "level": "Pre A1 Starters", "teacher": "Yasəmən müəllimə", "file": "riad_ibrahimli.pdf", "img": "riad_ibrahimli.jpg"}, {"id": "nilay_suleymanova", "name": "Nilay Süleymanova", "level": "Pre A1 Starters", "teacher": "Yasəmən müəllimə", "file": "nilay_suleymanova.pdf", "img": "nilay_suleymanova.jpg"}, {"id": "nasib_ibadov", "name": "Nəsib İbadov", "level": "Pre A1 Starters", "teacher": "Yasəmən müəllimə", "file": "nesib_ibadov.pdf", "img": "nesib_ibadov.jpg"}, {"id": "nargiz_hasanli", "name": "Nərgiz Həsənli", "level": "A1 Movers", "teacher": "Yasəmən müəllimə", "file": "nergiz_hesenli.pdf", "img": "nergiz_hesenli.jpg"}, {"id": "xadice_agcazade", "name": "Xədicə Ağcazadə", "level": "Pre A1 Starters", "teacher": "Yasəmən müəllimə", "file": "xedice_agcazade.pdf", "img": "xedice_agcazade.jpg"}, {"id": "nargiz_hacizada", "name": "Nərgiz Hacızadə", "level": "A1 Movers", "teacher": "Leyla müəllimə", "file": "nergiz_hacizade.pdf", "img": "nergiz_hacizade.jpg"}, {"id": "s_0_983", "name": "Atəş Məmmədli", "level": "A1 Movers", "teacher": "Xəzər müəllim", "file": "ates_memmedli.pdf", "img": "ates_memmedli.jpg"}, {"id": "s_1_6796", "name": "Rəsul Qaraxanov", "level": "A1 Movers", "teacher": "Xəzər müəllim", "file": "resul_qaraxanov.pdf", "img": "resul_qaraxanov.jpg"}, {"id": "s_2_3143", "name": "İranə Bayrızadə", "level": "Pre A1 Starters", "teacher": "Xəzər müəllim", "file": "irane_bayrizade.pdf", "img": "irane_bayrizade.jpg"}, {"id": "s_3_2545", "name": "Mehri Novruz", "level": "Pre A1 Starters", "teacher": "Xəzər müəllim", "file": "mehri_novruz.pdf", "img": "mehri_novruz.jpg"}, {"id": "s_4_2478", "name": "Mirsultan Nəzərov", "level": "Pre A1 Starters", "teacher": "Xəzər müəllim", "file": "mirsultan_nezerov.pdf", "img": "mirsultan_nezerov.jpg"}, {"id": "s_5_8767", "name": "Nicat Hüseynov", "level": "Pre A1 Starters", "teacher": "Xəzər müəllim", "file": "nicat_huseynov.pdf", "img": "nicat_huseynov.jpg"}, {"id": "s_6_5422", "name": "Sara Bayramova", "level": "Pre A1 Starters", "teacher": "Xəzər müəllim", "file": "sara_bayramova.pdf", "img": "sara_bayramova.jpg"}, {"id": "s_7_3981", "name": "Arzu Mərdanzadə", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "arzu_merdanzade.pdf", "img": "arzu_merdanzade.jpg"}, {"id": "s_8_8136", "name": "Arzu Quluzadə", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "arzu_quluzade.pdf", "img": "arzu_quluzade.jpg"}, {"id": "s_9_8134", "name": "Asurə Əliyeva", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "asure_eliyeva.pdf", "img": "asure_eliyeva.jpg"}, {"id": "s_10_9717", "name": "Ayan Əliyeva", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "ayan_eliyeva.pdf", "img": "ayan_eliyeva.jpg"}, {"id": "s_11_2499", "name": "Aylin Əhmədli", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "aylin_ehmedli.pdf", "img": "aylin_ehmedli.jpg"}, {"id": "s_12_6175", "name": "Aylin Məmmədli", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "aylin_memmedli.pdf", "img": "aylin_memmedli.jpg"}, {"id": "s_13_6825", "name": "Aysel Niftiyeva", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "aysel_niftiyeva.pdf", "img": "aysel_niftiyeva.jpg"}, {"id": "s_14_4687", "name": "Aytac Abışova", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "aytac_abisova.pdf", "img": "aytac_abisova.jpg"}, {"id": "s_15_8197", "name": "Ayxan Qaralov", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "ayxan_qaralov.pdf", "img": "ayxan_qaralov.jpg"}, {"id": "s_16_24", "name": "Azad Bədəlov", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "azad_bedelov.pdf", "img": "azad_bedelov.jpg"}, {"id": "s_17_9053", "name": "Babək Kərimli", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "babek_kerimli.pdf", "img": "babek_kerimli.jpg"}, {"id": "s_18_243", "name": "Cəsur İbrahimov", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "cesur_ibrahimov.pdf", "img": "cesur_ibrahimov.jpg"}, {"id": "s_19_7545", "name": "Elif Arslan", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "elif_arslan.pdf", "img": "elif_arslan.jpg"}, {"id": "q2_0", "name": "Əliəsgər Qüdrətov", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "eliesger_qudretov.pdf", "img": "eliesger_qudretov.jpg"}, {"id": "q2_1", "name": "Əsmər Edilxanlı", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "esmer_edilxanli.pdf", "img": "esmer_edilxanli.jpg"}, {"id": "q2_2", "name": "Gülay Həsənzadə", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "gulay_hesenzade.pdf", "img": "gulay_hesenzade.jpg"}, {"id": "q2_3", "name": "İlkin Sulxayev", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "ilkin_sulxayev.pdf", "img": "ilkin_sulxayev.jpg"}, {"id": "q2_4", "name": "Həsən Şıxəliyev", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "hesen_sixeliyev.pdf", "img": "hesen_sixeliyev.jpg"}, {"id": "q2_5", "name": "İlayda Əli", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "ilayda_eli.pdf", "img": "ilayda_eli.jpg"}, {"id": "q2_6", "name": "İsmət Bilalov", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "ismet_bilalov.pdf", "img": "ismet_bilalov.jpg"}, {"id": "q2_7", "name": "Kənan Alasov", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "kenan_alasov.pdf", "img": "kenan_alasov.jpg"}, {"id": "q2_8", "name": "Məhəmməd Novruzov", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "mehemmed_novruzov.pdf", "img": "mehemmed_novruzov.jpg"}, {"id": "q2_9", "name": "Miray Əzizli", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "miray_ezizli.pdf", "img": "miray_ezizli.jpg"}, {"id": "q2_10", "name": "İnci Əzimzadə", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "inci_ezimzade.pdf", "img": "inci_ezimzade.jpg"}, {"id": "q2_11", "name": "Məhəmməd Səttarov", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "mehemmed_settarov.pdf", "img": "mehemmed_settarov.jpg"}, {"id": "q2_12", "name": "Məhəmməd Quluzadə", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "mehemmed_quluzade.pdf", "img": "mehemmed_quluzade.jpg"}, {"id": "q2_13", "name": "Məhəmməd Haxverdiyev", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "mehemmed_haxverdiyev.pdf", "img": "mehemmed_haxverdiyev.jpg"}, {"id": "q2_14", "name": "Leyla Mərdanzadə", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "leyla_merdanzade.pdf", "img": "leyla_merdanzade.jpg"}, {"id": "q2_15", "name": "Nərgiz Mövlazadə", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "nergiz_movlazade.pdf", "img": "nergiz_movlazade.jpg"}, {"id": "q2_16", "name": "Nadir Şəfizadə", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "nadir_sefizade.pdf", "img": "nadir_sefizade.jpg"}, {"id": "q2_17", "name": "Mireyyub Nəzərov", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "mireyyub_nezerov.pdf", "img": "mireyyub_nezerov.jpg"}, {"id": "q2_18", "name": "Nərgiz Zəkəryə", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "nergiz_zekerye.pdf", "img": "nergiz_zekerye.jpg"}, {"id": "q2_19", "name": "Nilay Namazova", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "nilay_namazova.pdf", "img": "nilay_namazova.jpg"}, {"id": "q3_0", "name": "Nəzrin Rəhimova", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "nezrin_rehimova.pdf", "img": "nezrin_rehimova.jpg"}, {"id": "q3_1", "name": "Ömər Nüşhrəvanlı", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "omer_nushrevanli.pdf", "img": "omer_nushrevanli.jpg"}, {"id": "q3_2", "name": "Nurlan Bəkirov", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "nurlan_bekirov.pdf", "img": "nurlan_bekirov.jpg"}, {"id": "q3_3", "name": "Osman Osmanlı", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "osman_osmanli.pdf", "img": "osman_osmanli.jpg"}, {"id": "q3_4", "name": "Safiya Kərimova", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "safiya_kerimova.pdf", "img": "safiya_kerimova.jpg"}, {"id": "q3_5", "name": "Qənirə Həsənzadə", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "qenire_hesenzade.pdf", "img": "qenire_hesenzade.jpg"}, {"id": "q3_6", "name": "Pərviz Həşimov", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "perviz_hesimov.pdf", "img": "perviz_hesimov.jpg"}, {"id": "q3_7", "name": "Uğur Kərimli", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "ugur_kerimli.pdf", "img": "ugur_kerimli.jpg"}, {"id": "q3_8", "name": "Turqut Əsgərov", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "turqut_esgerov.pdf", "img": "turqut_esgerov.jpg"}, {"id": "q3_9", "name": "Səbinə İbrahimli", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "sebine_ibrahimli.pdf", "img": "sebine_ibrahimli.jpg"}, {"id": "q3_10", "name": "Zeynəb İsmayılova", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "zeyneb_ismayilova.pdf", "img": "zeyneb_ismayilova.jpg"}, {"id": "q3_11", "name": "Vaqif Həsənli", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "vaqif_hesenli.pdf", "img": "vaqif_hesenli.jpg"}, {"id": "q3_12", "name": "Ürfan Mustafazadə", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "urfan_mustafazade.pdf", "img": "urfan_mustafazade.jpg"}, {"id": "q3_13", "name": "Zəhra Ələkbərova", "level": "B1+ | B2 Upper Intermediate", "teacher": "Qaçay müəllim", "file": "zehra_elekberova.pdf", "img": "zehra_elekberova.jpg"}];
 const TEACHERS = ["Qaçay müəllim","Xəzər müəllim","Humay müəllimə","Leyla müəllimə","Zərifə müəllimə","Yasəmən müəllimə","Firuzə müəllimə"];
 
-let dynamicStudents = [];
+// Students added by the admin live in two possible places:
+//  1. students-extra.json in the GitHub repo — fetched by EVERY visitor on
+//     load, so admin-added students are visible to all parents, not just
+//     the admin's own browser. This is the real, shared storage.
+//  2. A local-only fallback (localStorage) used only if the admin hasn't
+//     connected GitHub yet — clearly marked as visible to the admin alone.
+const LS_KEY = 'td_school_local_only_students_v1';
+function loadLocalStudents(){
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch(e){ return []; }
+}
+function saveLocalStudents(){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(localOnlyStudents)); } catch(e){ console.warn('localStorage save failed', e); }
+}
+let sharedStudents = [];     // from students-extra.json (visible to everyone)
+let localOnlyStudents = loadLocalStudents(); // fallback, this browser only
 let dbNs = null;
 let downloadsNs = null;
+
+async function fetchSharedStudents(){
+  try {
+    const url = fileUrl('students-extra.json') + '?_=' + Date.now();
+    const r = await fetch(url, { cache: 'no-store' });
+    if (!r.ok) return [];
+    const data = await r.json();
+    return Array.isArray(data) ? data : [];
+  } catch(e) { return []; }
+}
 
 /* ---------- utils ---------- */
 const $ = id => document.getElementById(id);
@@ -401,7 +459,7 @@ function normalize(s){
     .replace(/ö/g,'o').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ç/g,'c').replace(/ğ/g,'g');
 }
 function allStudents(){
-  return [...STATIC_STUDENTS, ...dynamicStudents]
+  return [...STATIC_STUDENTS, ...sharedStudents, ...localOnlyStudents]
     .sort((a,b)=>a.name.localeCompare(b.name,'az'));
 }
 
@@ -608,7 +666,9 @@ async function downloadCertificate(student){
 
 /* ---------- admin ---------- */
 const fileInput = $('newPdf'), drop = $('fileDropLabel');
+const imgInput = $('newImg'), imgDrop = $('imgDropLabel');
 let pendingB64 = null;
+let pendingImgDataUrl = null;
 drop.onclick = () => fileInput.click();
 fileInput.addEventListener('change', () => {
   const f = fileInput.files[0]; if (!f) return;
@@ -616,56 +676,48 @@ fileInput.addEventListener('change', () => {
   r.onload = e => { pendingB64 = e.target.result.split(',')[1]; drop.textContent = '✓ ' + f.name; drop.classList.add('has-file'); };
   r.readAsDataURL(f);
 });
-$('addStudentForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const st = $('saveStatus');
-  const name = $('newName').value.trim();
-  if (!name || !pendingB64){ st.textContent = 'Zəhmət olmasa ad və PDF faylını daxil edin.'; st.className='save-status err'; return; }
-  const id = 'dyn_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
-  const rec = { id, name, level: $('newLevel').value, teacher: $('newTeacher').value, pdf: pendingB64, addedAt: Date.now() };
-  dynamicStudents.push(rec);
-  if (dbNs){
-    try { await dbNs.doc('students/'+id).set(rec); st.textContent = 'Şagird uğurla əlavə edildi və yadda saxlanıldı.'; st.className='save-status ok'; }
-    catch(err){ console.error(err); st.textContent = 'Siyahıya əlavə olundu, lakin yadda saxlama xətası baş verdi.'; st.className='save-status err'; }
-  } else { st.textContent = 'Şagird əlavə edildi (yalnız bu seansda görünəcək).'; st.className='save-status err'; }
-  $('addStudentForm').reset(); drop.textContent = 'PDF faylını seçmək üçün klikləyin'; drop.classList.remove('has-file'); pendingB64 = null;
-  renderAdminAddedList(); renderStudentList();
-});
-function renderAdminAddedList(){
-  const el = $('adminAddedList'); el.innerHTML = '';
-  $('adminAddedEmpty').classList.toggle('hidden', dynamicStudents.length !== 0);
-  dynamicStudents.forEach(s=>{
-    const row = document.createElement('div'); row.className = 'admin-list-item';
-    row.innerHTML = `<div class="avatar" style="width:40px;height:40px;font-size:1.1rem;">${avatarEmoji(s.id)}</div>
-      <div><div class="s-name">${escapeHtml(s.name)}</div>
-      <div class="s-meta"><span class="pill level">${escapeHtml(s.level)}</span>${s.teacher?`<span class="pill teacher">${escapeHtml(s.teacher)}</span>`:''}</div></div>
-      <button class="del-btn" type="button" data-id="${escapeHtml(s.id)}">Sil</button>`;
-    el.appendChild(row);
-  });
-}
-$('adminAddedList').addEventListener('click', async e => {
-  const b = e.target.closest('.del-btn'); if (!b) return;
-  const id = b.dataset.id;
-  dynamicStudents = dynamicStudents.filter(s=>s.id !== id);
-  if (dbNs){ try { await dbNs.doc('students/'+id).delete(); } catch(err){ console.error(err); } }
-  renderAdminAddedList(); renderStudentList();
+imgDrop.onclick = () => imgInput.click();
+imgInput.addEventListener('change', () => {
+  const f = imgInput.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = e => { pendingImgDataUrl = e.target.result; imgDrop.textContent = '✓ ' + f.name; imgDrop.classList.add('has-file'); };
+  r.readAsDataURL(f);
 });
 
-/* ---------- capabilities ---------- */
-(async function init(){
-  try {
-    if (window.claude && window.claude.use){
-      downloadsNs = await window.claude.use('downloads');
-      dbNs = await window.claude.use('db');
-      if (dbNs){
-        dbNs.collection('students').onSnapshot(snap => {
-          try { dynamicStudents = snap.docs.map(d=>d.data()); } catch(e){ dynamicStudents = []; }
-          renderStudentList(); renderAdminAddedList();
-        });
-      }
-    }
-  } catch(err){ console.warn('capabilities unavailable', err); }
-})();
-</script>
-</body>
-</html>
+/* ---------- GitHub-backed shared storage (so admin uploads are visible to
+   everyone, not just the admin's own browser) ---------- */
+const GH_KEY = 'td_school_gh_config_v1';
+function loadGhConfig(){ try { return JSON.parse(localStorage.getItem(GH_KEY) || 'null'); } catch(e){ return null; } }
+function saveGhConfig(cfg){ try { localStorage.setItem(GH_KEY, JSON.stringify(cfg)); } catch(e){} }
+let ghConfig = loadGhConfig();
+
+function slugify(name){
+  const map = {'ə':'e','Ə':'e','ı':'i','İ':'i','ö':'o','Ö':'o','ü':'u','Ü':'u','ş':'s','Ş':'s','ç':'c','Ç':'c','ğ':'g','Ğ':'g'};
+  const base = name.split('').map(ch => map[ch] || ch).join('').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+  return (base || 'sagird') + '_' + Date.now().toString(36);
+}
+function ghHeaders(){
+  return { 'Authorization': 'token ' + ghConfig.token, 'Accept': 'application/vnd.github+json' };
+}
+async function ghGetFile(path){
+  const r = await fetch(`https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/${path}`, { headers: ghHeaders() });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error('GitHub oxuma xətası (' + r.status + ')');
+  return r.json();
+}
+async function ghPutFile(path, base64Content, message, sha){
+  const body = { message, content: base64Content, branch: ghConfig.branch || 'main' };
+  if (sha) body.sha = sha;
+  const r = await fetch(`https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/${path}`, {
+    method: 'PUT', headers: { ...ghHeaders(), 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+  });
+  if (!r.ok) { const t = await r.text().catch(()=> ''); throw new Error('GitHub yazma xətası (' + r.status + '): ' + t.slice(0,200)); }
+  return r.json();
+}
+async function ghGetExtraList(){
+  const meta = await ghGetFile('students-extra.json');
+  if (!meta) return { list: [], sha: null };
+  const content = decodeURIComponent(escape(atob((meta.content || '').replace(/\n/g,''))));
+  let list = [];
+  try { list = JSON.parse(content || '[]'); } catch(e) { list = []; }
+  return { list, sha: meta.sha };
